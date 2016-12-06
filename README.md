@@ -144,3 +144,12 @@ __Feel free to use the online [calendar file Generator](https://web.devenet.eu/a
 Source code is hosted on [Github](https://github.com/Devenet/AdventCalendar) by [Nicolas Devenet](https://nicolas.devenet.com). Feel free to fork it and to improve the application!
 
 Let me know if you use Advent Calendar by sending me an email, I will be happy ;-)
+
+## Modifications made by Karl Olofsson at Solidsquare AS, Oslo Norway:
+
+Simple array- and CSV-based multiuser accounts to track opened days. Use like this:
+ Array $users in index.php holds "Username" => "Password" where the CSV-file has "Password,1,2,3,...,24" for each day and user.
+ Create CSV-file "sett.csv" in main directory as above for each user (none is generated).
+ login.php and logout.php does user session management, borrowed from Stack Overflow.
+Array-based ($order in index.php) mixing of order of days.
+Single image for active but unopened days (/assets/luke), and thumbnail of day(dag)-specifik image after visit (/assets/dag, needs fix for thumbnail to use /private as this got errors).
