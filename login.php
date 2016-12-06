@@ -1,11 +1,6 @@
 <?php
 defined('DS') OR die('No direct access allowed.');
 
-if(isset($_GET['logout'])) {
-    $_SESSION['username'] = '';
-    header('Location:  ' . $_SERVER['PHP_SELF']);
-}
-
 if(isset($_POST['username'])) {
     if($users[$_POST['username']] !== NULL && $users[$_POST['username']] == $_POST['password']) {
         $_SESSION['username'] = $_POST['username'];
