@@ -473,21 +473,6 @@ abstract class RSS {
  define('USERNAME', $_SESSION['username']);
  define('SELF',  $_SERVER['PHP_SELF'] );
 
-if(isset($_GET['logout'])) {
-    $_SESSION['username'] = '';
-    header('Location:  ' . $_SERVER['PHP_SELF']);
-}
-
-if(isset($_POST['username'])) {
-    if($users[$_POST['username']] !== NULL && $users[$_POST['username']] == $_POST['password']) {
-        $_SESSION['username'] = $_POST['username'];
-        header('Location:  '. $_SERVER['PHP_SELF']); //
-    }else {
-        //invalid login
-        echo "<p>Får ikke logget deg inn dessverre! Sjekk med Karl, han virker flink!</p>";
-    }
-}
-
 /*
  * Load template
  */
