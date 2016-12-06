@@ -1,17 +1,6 @@
 <?php
 defined('DS') OR die('No direct access allowed.');
 
-/*$users = array(
-                'Karl'=>'Olofsson',
-                'Claus'=>'Fasseland',
-                'Marthe'=>'Eide',
-                'Ummear'=>'Khan',
-                'FredrikO'=>'Oterholt',
-                'Fredrik'=>'Larsen',
-                'Kjell Arne'=>'Arvesen',
-                'Daniel'=>'Martinsen',
-                );*/
-
 if(isset($_GET['logout'])) {
     $_SESSION['username'] = '';
     header('Location:  ' . $_SERVER['PHP_SELF']);
@@ -23,13 +12,11 @@ if(isset($_POST['username'])) {
         header('Location:  '. $_SERVER['PHP_SELF']); //
     }else {
         //invalid login
-        echo "<p>error logging in</p>";
+        echo "<p>Error logging in</p>";
     }
 }
 
-$template = '<!--<script src="https://apis.google.com/js/platform.js" async defer></script>
-<div class="g-signin2" data-onsuccess="onSignIn"></div>-->
-<div class="container text-center">
+$template = '<div class="container text-center">
 <form method="post" action="'.SELF.'" class="espace-lg form-inline">
   <div class="page-header"><h1 style="color: #FFF;">Solidsquares Julekalender</h1></div>
   <p><label for="username">Bruker</label> <input type="text" id="username" name="username" value="" class="form-control input-lg"/></p>

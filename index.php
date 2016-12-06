@@ -229,12 +229,6 @@ abstract class Advent {
 
 	static function getDays($order) {
 		$result = array();
-        /*$order = array(
-            '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
-            '7' =>'22','8'=>'1',  '9'=>'9', '10'=>'23','11'=>'21','12'=>'11',
-            '13'=>'4','14'=>'16','15'=>'18','16'=>'17','17'=>'10','18'=>'24',
-            '19'=>'6','20'=>'8', '21'=>'12','22'=>'14','23'=>'19','24'=>'20'
-        );*/
 		for ($i=FIRST_DAY+0; $i<=LAST_DAY; $i++) {
 			$result[] = new Day($order[$i]);
 		}
@@ -287,19 +281,7 @@ abstract class Advent {
                     }
                     fclose($handle);
                 }
-                /*$users = array(
-                                'Karl'=>'Olofsson',
-                                'Claus'=>'Fasseland',
-                                'Marthe'=>'Eide',
-                                'Ummear'=>'Khan',
-                                'FredrikO'=>'Oterholt',
-                                'Fredrik'=>'Larsen',
-                                'Kjell Arne'=>'Arvesen',
-                                'Daniel'=>'Martinsen',
-                                );*/
-
                 foreach ($data as $user){
-                //echo '<pre>'; print_r($user['Etternavn']); print_r($users[USERNAME]); echo '</pre>';
                     if($user['Etternavn'] == $users[USERNAME]){
                         switch ($user[$d->day]) {
                             case 1:
@@ -384,7 +366,7 @@ abstract class Advent {
 
 		return $result.'</div>';
 	}
-
+    // Hard coded opt-in for extra non-text content, working on more dynamic feature
 	static function getCode($day){
 	    $code = '';
 	    switch ($day){
@@ -489,7 +471,7 @@ abstract class RSS {
  * Session management
  */
 
- session_start(); //fixa?
+ session_start();
 
  define('DS',  TRUE); // used to protect includes
  define('USERNAME', $_SESSION['username']);
@@ -516,7 +498,9 @@ if(isset($_POST['username'])) {
 
 $template = NULL;
 
-/* need to display log form?
+// This version uses the new Array- and CSV-based multi user system instead
+
+/* need to display log form? (this version borrows the design but implements login.php instead)
 if (defined('PASSKEY') && isset($loginRequested)) {
 	$template = '
 	<div class="container text-center">
@@ -532,14 +516,14 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 if (isset($_GET[URL_PHOTO])) { Image::get($_GET[URL_PHOTO]+0); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
-    if(USERNAME !== null)
+    if(USERNAME !== null) // Check if user is valid
 	    $template = Advent::getDaysHtml($order, $users);
-	else
+	else // Force login form if not
         include('login.php');
 }
 // want to display a day
 else if (isset($_GET['day'])) {
-    if(null !== USERNAME){ //Måste hanteras bättre i login.php med ?
+    if(null !== USERNAME){
         $day = $_GET['day'] + 0;
         if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
         if (Advent::isActiveDay($day)) {
@@ -563,22 +547,6 @@ else if (isset($_GET['day'])) {
                         }
                         fclose($handle);
                     }
-                    /*$users = array(
-                                    'Karl'=>'Olofsson',
-                                    'Claus'=>'Fasseland',
-                                    'Marthe'=>'Eide',
-                                    'Ummear'=>'Khan',
-                                    'FredrikO'=>'Oterholt',
-                                    'Fredrik'=>'Larsen',
-                                    'Kjell Arne'=>'Arvesen',
-                                    'Daniel'=>'Martinsen',
-                                    );*/
-                    /*$order = array(
-                        '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
-                        '7' =>'22','8'=>'1',  '9'=>'9', '10'=>'23','11'=>'21','12'=>'11',
-                        '13'=>'4','14'=>'16','15'=>'18','16'=>'17','17'=>'10','18'=>'24',
-                        '19'=>'6','20'=>'8', '21'=>'12','22'=>'14','23'=>'19','24'=>'20'
-                    );*/
                     $input = fopen('sett.csv', 'r');  //open for reading
                     $output = fopen('sett_update.csv', 'w'); //open for writing
                     while($data = fgetcsv($input)){  //read each line as an array
@@ -606,7 +574,7 @@ else if (isset($_GET['day'])) {
     }
 }
 
-/* rss feed is requested (only supported for no procted Advent Calendar)
+/* rss feed is requested (only supported for no procted Advent Calendar) (not used here)
 if (isset($_GET[URL_RSS])) {
 	if (!defined('PASSKEY')) { RSS::get(); }
 	else {
@@ -622,7 +590,7 @@ if (isset($_GET[URL_RSS])) {
 	}
 }*/
 
-/* want to display about page [no need to be logged in to access]
+/* want to display about page [no need to be logged in to access] (not used here)
 if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
 	if (!empty($_GET[URL_ABOUT])) { header('Location: ./?'.URL_ABOUT); exit(); }
@@ -635,7 +603,7 @@ if (empty($template)) {
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
 
-// helper
+// helper (not used here)
 //$authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 ?><!doctype html>
@@ -668,16 +636,6 @@ if (empty($template)) {
 	</head>
 
 	<body>
-
-        <script>
-        function onSignIn(googleUser) {
-          var profile = googleUser.getBasicProfile();
-          console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-          console.log('Name: ' + profile.getName());
-          console.log('Image URL: ' + profile.getImageUrl());
-          console.log('Email: ' + profile.getEmail());
-        }
-        </script>
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 		<div class="container">
         <audio id="musikk" controls>
@@ -685,7 +643,7 @@ if (empty($template)) {
             Your browser does not support the audio element.
         </audio>
 
-		<?php //fixa inlogg vid öppen översikt
+		<?php
 		if(null !== USERNAME)
             echo '<span class="pull-right user">Du er logget inn som '.USERNAME.'. <a href="logout.php">Logg ut</a></span>';
         ?>
@@ -699,15 +657,6 @@ if (empty($template)) {
                 document.getElementById("musikk").play();
             }
         </script>
-        <!--<a href="#" onclick="signOut();"  class="pull-right user">Logg ut</a>
-        <script>
-          function signOut() {
-            var auth2 = gapi.auth2.getAuthInstance();
-            auth2.signOut().then(function () {
-              console.log('User signed out.');
-            });
-          }
-        </script>-->
 		<div id="snowflakeContainer">
 
 		<div class="background<?php if(defined('ALTERNATE_BACKGROUND')) { echo ' alternate-background'; } ?>">
