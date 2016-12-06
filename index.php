@@ -597,9 +597,7 @@ if (empty($template)) {
                 }
             };
         </script>
-        <script src="https://apis.google.com/js/platform.js" async defer></script>
 		<meta charset="UTF-8" />
-		<meta name="google-signin-client_id" content="1024777462209-88ijoclg7aeen1cbgm9gehcq84jsukqj.apps.googleusercontent.com">
 		<title><?php echo TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
 
 		<!-- Parce qu’il y a toujours un peu d’humain derrière un site... -->
