@@ -21,7 +21,6 @@ $template = '<div class="container text-center">
   <div class="page-header"><h1 style="color: #FFF;">Solidsquares Julekalender</h1></div>
   <p><label for="username">Bruker</label> <input type="text" id="username" name="username" value="" class="form-control input-lg"/></p>
   <p><label for="password">Passord</label> <input type="password" id="password" name="password" value="" class="form-control input-lg"/></p>
-  <!--<input type="checkbox" name="remember">Husk meg!-->
   <p><input type="submit" name="submit" value="Logg inn" class="btn btn-default btn-lg tip"/></p>
   </form>
 </div>';
