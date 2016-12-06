@@ -21,7 +21,7 @@ define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
 
-define('UNLOCKED', 9);
+define('UNLOCKED', 9); // Sets limit for which hour of the day the user can see new content (24h format)
 
 // load users from file
 $users = array();
@@ -391,7 +391,7 @@ abstract class Advent {
 		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. $day .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
 
-    function soClose($hours, $minutes) {
+    function soClose($hours, $minutes) { // Limits user to view daily content before hour UNLOCKED of the day (24h format)
         $difference = (UNLOCKED*60) - ($hours*60) - $minutes;
         return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Det er riktig dag, men du må pent vente til klokken '.UNLOCKED.'!</h3></div><div class="panel-body">Men det er jo kun <strong>'.$difference.' minutter</strong> igjen da!<a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
     }
