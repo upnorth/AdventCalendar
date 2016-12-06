@@ -343,19 +343,20 @@ abstract class Advent {
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 
+        // do we have extra content?
+        if (!empty(self::getCode($day))) { $result .= self::getCode($day); }
 		// do we have a text?
 		if (!empty($text)) { $result .= '<div class="text panel panel-default"><div class="panel-body">'.$text.'</div></div>'; }
 		// clearfix
-        //$result .= '<div class="clearfix"></div>';
-        if (!empty(self::getCode($day))) { $result .= self::getCode($day); }
-		/* we do not forget the pagination
+        $result .= '<div class="clearfix"></div>';
+		// we do not forget the pagination
 		$result .= '<ul class="pager"><li class="previous';
 		if (self::isActiveDay($day-1) && ($day-1)>=FIRST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day-1) .'" title="yesterday" class="tip" data-placement="right">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-left"></i></a></li><li class="next';
 		if (self::isActiveDay($day+1) && ($day+1)<=LAST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day+1) .'" title="tomorrow" class="tip" data-placement="left">'; }
 		else { $result .= ' disabled"><a>'; }
-		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';*/
+		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
 
 		// we add disqus thread if supported
 		if (AddOns::Found('disqus')) { $result .= '<div id="disqus_thread"></div>'; }
@@ -660,7 +661,7 @@ if (empty($template)) {
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="assets/adventcalendar.js"></script>
         <script src="assets/fallingsnow_v6.js"></script>
-		<!--<?php if (AddOns::Found('js')): ?>
+		<?php if (AddOns::Found('js')): ?>
 		<script>
 			<?php if (AddOns::Found('disqus')): ?>
 			var disqus_shortname = '<?php echo AddOns::Get("disqus"); ?>';
@@ -680,7 +681,7 @@ if (empty($template)) {
 			(function(){ var u='//<?php echo $piwik["piwik_url"]; ?>/'; _paq.push(['setSiteId', '<?php echo $piwik["site_id"]; ?>']); _paq.push(['setTrackerUrl', u+'piwik.php']); _paq.push(['trackPageView']); _paq.push(['enableLinkTracking']); var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript'; g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s); })();
 			<?php endif; ?>
 		</script>
-		<?php endif; ?>-->
+		<?php endif; ?>
         <script>
             var myAudio = document.getElementById("musikk");
             myAudio.onpause = function() {
