@@ -370,7 +370,7 @@ abstract class Advent {
 	            $code = '<div class="video-container"><iframe src="https://www.youtube.com/embed/Swos6PO2zNM?autoplay=1" frameborder="0" allowfullscreen></iframe></div><p class="text">Sjekk ut videon <a href="https://www.youtube.com/watch?v=Swos6PO2zNM&feature=youtu.be">her </a>(innlogget med Solidsquare-bruker) hvis den ikke går å spille.</p>';
 	            break;
             case '2':
-                $code = '<img style="margin-left: auto; margin-right: auto;" src="https://i.kinja-img.com/gawker-media/image/upload/17iqysqjnsthujpg.jpg">';
+                $code = '<img class="img-responsive" src="https://i.kinja-img.com/gawker-media/image/upload/17iqysqjnsthujpg.jpg">';
 	            break;
             case '3':
                 $code = '<img class="img-responsive" src="https://s-media-cache-ak0.pinimg.com/564x/10/30/8e/10308e90073dfdf669b847924d34408e.jpg">';
