@@ -153,3 +153,4 @@ Simple array- and CSV-based multiuser accounts to track opened days. Use like th
  login.php and logout.php does user session management, borrowed from Stack Overflow.
 Array-based ($order in index.php) mixing of order of days.
 Single image for active but unopened days (/assets/luke), and thumbnail of day(dag)-specifik image after visit (/assets/dag, needs fix for thumbnail to use /private as this got errors).
+TODO: Dynamic user settings. Dynamic extra content. Dynamic order of days.
