@@ -16,6 +16,7 @@ define('URL_ABOUT', 'about');
 define('URL_RSS', 'rss');
 define('PRIVATE_FOLDER', './private');
 define('USERS_FILE', PRIVATE_FOLDER.'/users.json');
+define('ORDER_FILE', PRIVATE_FOLDER.'/order.json');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
@@ -28,12 +29,11 @@ if (file_exists(USERS_FILE) && $users !== NULL) {
     $users = json_decode(file_get_contents(USERS_FILE), true);
 }
 
-$order = array(
-            '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
-            '7' =>'22','8'=>'1',  '9'=>'9', '10'=>'23','11'=>'21','12'=>'11',
-            '13'=>'4','14'=>'16','15'=>'18','16'=>'17','17'=>'10','18'=>'24',
-            '19'=>'6','20'=>'8', '21'=>'12','22'=>'14','23'=>'19','24'=>'20'
-        );
+// load order for days from file
+$order = array();
+if (file_exists(ORDER_FILE)) {
+    $order = json_decode(file_get_contents(ORDER_FILE), true);
+}
 
 // load settings from file
 if (file_exists(SETTINGS_FILE)) {
