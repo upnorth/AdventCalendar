@@ -19,6 +19,26 @@ define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
 
+define('UNLOCKED', 9);
+
+$users = array(
+                'Karl'=>'Olofsson',
+                'Claus'=>'Fasseland',
+                'Marthe'=>'Eide',
+                'Ummear'=>'Khan',
+                'FredrikO'=>'Oterholt',
+                'Fredrik'=>'Larsen',
+                'Kjell Arne'=>'Arvesen',
+                'Daniel'=>'Martinsen',
+                );
+
+$order = array(
+            '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
+            '7' =>'22','8'=>'1',  '9'=>'9', '10'=>'23','11'=>'21','12'=>'11',
+            '13'=>'4','14'=>'16','15'=>'18','16'=>'17','17'=>'10','18'=>'24',
+            '19'=>'6','20'=>'8', '21'=>'12','22'=>'14','23'=>'19','24'=>'20'
+        );
+
 // load settings from file
 if (file_exists(SETTINGS_FILE)) {
 	$settings = json_decode(file_get_contents(SETTINGS_FILE));
@@ -203,14 +223,20 @@ abstract class Advent {
 		// is the day active ?
 		if ($active) { $result .= 'active '; }
 		// set a color for the background
-		$result .= 'day-color-'.($day%4 + 1);
+		$result .= 'day-color';
 		return $result;
 	}
 
-	static function getDays() {
+	static function getDays($order) {
 		$result = array();
+        /*$order = array(
+            '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
+            '7' =>'22','8'=>'1',  '9'=>'9', '10'=>'23','11'=>'21','12'=>'11',
+            '13'=>'4','14'=>'16','15'=>'18','16'=>'17','17'=>'10','18'=>'24',
+            '19'=>'6','20'=>'8', '21'=>'12','22'=>'14','23'=>'19','24'=>'20'
+        );*/
 		for ($i=FIRST_DAY+0; $i<=LAST_DAY; $i++) {
-			$result[] = new Day($i);
+			$result[] = new Day($order[$i]);
 		}
 		return $result;
 	}
@@ -223,12 +249,73 @@ abstract class Advent {
 		return $result;
 	}
 
-	static function getDaysHtml() {
+	static function getDaysHtml($order, $users) {
+	    $data = array();
+        if(null !== USERNAME){
+            if(!file_exists('sett.csv') || !is_readable('sett.csv'))
+                echo 'CSV Fail';
+            $header = NULL;
+            if (($handle = fopen('sett.csv', 'r')) !== FALSE){
+                while (($row = fgetcsv($handle, 0, ',')) !== FALSE){
+                    if(!$header)
+                       $header = $row;
+                    else {
+                        if(count($header)!=count($row)){ continue; }
+                        $data[] = array_combine($header, $row);
+                    }
+                }
+                fclose($handle);
+            }
+        }
 		$result = '<div class="container days">';
-		foreach (self::getDays() as $d) {
-			if ($d->active) { $result .= '<a href="'. $d->url .'" title="Day '. ($d->day) .'"'; }
+		foreach (self::getDays($order) as $d) {
+			if ($d->active) { $result .= '<a href="'. $d->url .'" title="Day '. $d->day .'"'; }
 			else { $result .= '<div'; }
-			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .'"><span>'. ($d->day) .'</span>';
+            if(null !== USERNAME){
+                if(!file_exists('sett.csv') || !is_readable('sett.csv'))
+                    echo 'CSV Fail';
+                $header = NULL;
+                $data = array();
+                if (($handle = fopen('sett.csv', 'r')) !== FALSE){
+                    while (($row = fgetcsv($handle, 0, ',')) !== FALSE){
+                        if(!$header)
+                           $header = $row;
+                        else {
+                            if(count($header)!=count($row)){ continue; }
+                            $data[] = array_combine($header, $row);
+                        }
+                    }
+                    fclose($handle);
+                }
+                /*$users = array(
+                                'Karl'=>'Olofsson',
+                                'Claus'=>'Fasseland',
+                                'Marthe'=>'Eide',
+                                'Ummear'=>'Khan',
+                                'FredrikO'=>'Oterholt',
+                                'Fredrik'=>'Larsen',
+                                'Kjell Arne'=>'Arvesen',
+                                'Daniel'=>'Martinsen',
+                                );*/
+
+                foreach ($data as $user){
+                //echo '<pre>'; print_r($user['Etternavn']); print_r($users[USERNAME]); echo '</pre>';
+                    if($user['Etternavn'] == $users[USERNAME]){
+                        switch ($user[$d->day]) {
+                            case 1:
+                                $result .= 'class="day-row viewed" style="background-image: url(';
+                                $result .= "'assets/dag/".$d->day.".jpg'); ";
+                                break;
+                            case 0:
+                                $result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+			$result .= '"><span class="active-text">'.$d->day.'</span>';
 			if ($d->active) { $result .= '</a>'; }
 			else { $result .= '</div>'; }
 		}
@@ -263,7 +350,7 @@ abstract class Advent {
 		// set the day number block
 		$result .= '<a href="./?'. URL_DAY.'='. $day .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. $day .'</span></a>';
 		// set the title
-		$result .= '<h1><span>';
+		$result .= '<h1><span class="day-text">';
 		if (!empty($title)) { $result .= $title; }
 		else { $result .= 'Day '.$day; }
 		$result .= '</span></h1>';
@@ -273,22 +360,24 @@ abstract class Advent {
 		// display image
 		$result .= '<div class="text-center"><img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="Day '. $day .'" />';
 		// do we have a legend?
-		if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
+		//if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
 		$result .= '</div>';
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 
 		// do we have a text?
 		if (!empty($text)) { $result .= '<div class="text panel panel-default"><div class="panel-body">'.$text.'</div></div>'; }
-
-		// we do not forget the pagination
+		// clearfix
+        //$result .= '<div class="clearfix"></div>';
+        if (!empty(self::getCode($day))) { $result .= self::getCode($day); }
+		/* we do not forget the pagination
 		$result .= '<ul class="pager"><li class="previous';
 		if (self::isActiveDay($day-1) && ($day-1)>=FIRST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day-1) .'" title="yesterday" class="tip" data-placement="right">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-left"></i></a></li><li class="next';
 		if (self::isActiveDay($day+1) && ($day+1)<=LAST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day+1) .'" title="tomorrow" class="tip" data-placement="left">'; }
 		else { $result .= ' disabled"><a>'; }
-		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
+		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';*/
 
 		// we add disqus thread if supported
 		if (AddOns::Found('disqus')) { $result .= '<div id="disqus_thread"></div>'; }
@@ -296,9 +385,38 @@ abstract class Advent {
 		return $result.'</div>';
 	}
 
+	static function getCode($day){
+	    $code = '';
+	    switch ($day){
+	        case '1':
+	            $code = '<div class="video-container"><iframe src="https://www.youtube.com/embed/Swos6PO2zNM?autoplay=1" frameborder="0" allowfullscreen></iframe></div><p class="text">Sjekk ut videon <a href="https://www.youtube.com/watch?v=Swos6PO2zNM&feature=youtu.be">her </a>(innlogget med Solidsquare-bruker) hvis den ikke går å spille.</p>';
+	            break;
+            case '2':
+                $code = '<img style="margin-left: auto; margin-right: auto;" src="https://i.kinja-img.com/gawker-media/image/upload/17iqysqjnsthujpg.jpg">';
+	            break;
+            case '3':
+                $code = '<img class="img-responsive" src="https://s-media-cache-ak0.pinimg.com/564x/10/30/8e/10308e90073dfdf669b847924d34408e.jpg">';
+                break;
+            case '4':
+                $code = '<div class="video-container"><iframe src="https://www.youtube.com/embed/GKRI86ldV_w?autoplay=1" frameborder="0" allowfullscreen></iframe></div><p class="text">Sjekk ut videon <a href="https://www.youtube.com/watch?v=GKRI86ldV_w&feature=youtu.be">her </a>(innlogget med Solidsquare-bruker) hvis den ikke går å spille.</p>';
+	            break;
+            case '5':
+		        $code = '<img class="img-responsive" src="https://s-media-cache-ak0.pinimg.com/originals/00/bb/84/00bb84e7400cee35c416737b968d5c64.png">';
+                break;
+	        default:
+	            break;
+	    }
+	    return $code;
+	}
+
 	function bePatient($day) {
 		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. $day .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
+
+    function soClose($hours, $minutes) {
+        $difference = (UNLOCKED*60) - ($hours*60) - $minutes;
+        return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Det er riktig dag, men du må pent vente til klokken '.UNLOCKED.'!</h3></div><div class="panel-body">Men det er jo kun <strong>'.$difference.' minutter</strong> igjen da!<a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
+    }
 
 }
 
@@ -366,37 +484,30 @@ abstract class RSS {
 	}
 }
 
+
 /*
  * Session management
  */
 
-if (defined('PASSKEY')) {
-	// for calendars on same server, set a different cookie name based on the script path
-	session_name(md5($_SERVER['SCRIPT_NAME']));
+ session_start(); //fixa?
 
-	session_start();
+ define('DS',  TRUE); // used to protect includes
+ define('USERNAME', $_SESSION['username']);
+ define('SELF',  $_SERVER['PHP_SELF'] );
 
-	// want to log out
-	if (isset($_GET['logout'])) {
-		$_SESSION['welcome'] = FALSE;
-		session_destroy();
-		header('Location: ./');
-		exit();
-	}
+if(isset($_GET['logout'])) {
+    $_SESSION['username'] = '';
+    header('Location:  ' . $_SERVER['PHP_SELF']);
+}
 
-	// want to log in
-	if (isset($_POST['credential']) && !empty($_POST['credential'])) {
-		if ($_POST['credential'] == PASSKEY) {
-			$_SESSION['welcome'] = TRUE;
-			header('Location: ./');
-			exit();
-		}
-	}
-
-	// not logged in: we ask passkey
-	if (!isset($_SESSION['welcome']) || !$_SESSION['welcome']) {
-		$loginRequested = TRUE;
-	}
+if(isset($_POST['username'])) {
+    if($users[$_POST['username']] !== NULL && $users[$_POST['username']] == $_POST['password']) {
+        $_SESSION['username'] = $_POST['username'];
+        header('Location:  '. $_SERVER['PHP_SELF']); //
+    }else {
+        //invalid login
+        echo "<p>Får ikke logget deg inn dessverre! Sjekk med Karl, han virker flink!</p>";
+    }
 }
 
 /*
@@ -405,7 +516,7 @@ if (defined('PASSKEY')) {
 
 $template = NULL;
 
-// need to display log form?
+/* need to display log form?
 if (defined('PASSKEY') && isset($loginRequested)) {
 	$template = '
 	<div class="container text-center">
@@ -416,24 +527,86 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-user"></i></button>
 		</form>
 	</div>';
-}
+}*/
 // want to see a photo ?
-else if (isset($_GET[URL_PHOTO])) { Image::get($_GET[URL_PHOTO]+0); }
+if (isset($_GET[URL_PHOTO])) { Image::get($_GET[URL_PHOTO]+0); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
-	$template = Advent::getDaysHtml();
+    if(USERNAME !== null)
+	    $template = Advent::getDaysHtml($order, $users);
+	else
+        include('login.php');
 }
 // want to display a day
 else if (isset($_GET['day'])) {
-	$day = $_GET['day'] + 0;
-	if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
-	if (Advent::isActiveDay($day)) {
-		$template = Advent::getDayHtml($day);
-	}
-	else { $template = Advent::bePatient($day); }
+    if(null !== USERNAME){ //Måste hanteras bättre i login.php med ?
+        $day = $_GET['day'] + 0;
+        if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
+        if (Advent::isActiveDay($day)) {
+            if(date('d') == $day && date('H') < UNLOCKED)
+                $template = Advent::soClose(date('H'), date('i'));
+            else {
+                $template = Advent::getDayHtml($day);
+                if(USERNAME !== null) {
+                    if(!file_exists('sett.csv') || !is_readable('sett.csv'))
+                        echo 'CSV Fail';
+                    $header = NULL;
+                    $data = array();
+                    if (($handle = fopen('sett.csv', 'r')) !== FALSE){
+                        while (($row = fgetcsv($handle, 0, ',')) !== FALSE){
+                            if(!$header)
+                               $header = $row;
+                            else {
+                                if(count($header)!=count($row)){ continue; }
+                                $data[] = array_combine($header, $row);
+                            }
+                        }
+                        fclose($handle);
+                    }
+                    /*$users = array(
+                                    'Karl'=>'Olofsson',
+                                    'Claus'=>'Fasseland',
+                                    'Marthe'=>'Eide',
+                                    'Ummear'=>'Khan',
+                                    'FredrikO'=>'Oterholt',
+                                    'Fredrik'=>'Larsen',
+                                    'Kjell Arne'=>'Arvesen',
+                                    'Daniel'=>'Martinsen',
+                                    );*/
+                    /*$order = array(
+                        '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
+                        '7' =>'22','8'=>'1',  '9'=>'9', '10'=>'23','11'=>'21','12'=>'11',
+                        '13'=>'4','14'=>'16','15'=>'18','16'=>'17','17'=>'10','18'=>'24',
+                        '19'=>'6','20'=>'8', '21'=>'12','22'=>'14','23'=>'19','24'=>'20'
+                    );*/
+                    $input = fopen('sett.csv', 'r');  //open for reading
+                    $output = fopen('sett_update.csv', 'w'); //open for writing
+                    while($data = fgetcsv($input)){  //read each line as an array
+                       //modify data here
+                       if ($data[0] == $users[USERNAME]) {
+
+                          //Replace line here fix
+                          $data[$day] = 1;
+                       }
+                       //write modified data to new file
+                       fputcsv( $output, $data);
+                    }
+                    //close both files
+                    fclose( $input );
+                    fclose( $output );
+                    //clean up
+                    unlink('sett.csv');// Delete obsolete BD
+                    rename('sett_update.csv', 'sett.csv'); //Rename temporary to new
+                }
+            }
+        } else { $template = Advent::bePatient($day); }
+    }
+    else {
+        include('login.php');
+    }
 }
 
-// rss feed is requested (only supported for no procted Advent Calendar)
+/* rss feed is requested (only supported for no procted Advent Calendar)
 if (isset($_GET[URL_RSS])) {
 	if (!defined('PASSKEY')) { RSS::get(); }
 	else {
@@ -447,14 +620,14 @@ if (isset($_GET[URL_RSS])) {
 			</div>
 		</div>';
 	}
-}
+}*/
 
-// want to display about page [no need to be logged in to access]
+/* want to display about page [no need to be logged in to access]
 if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
 	if (!empty($_GET[URL_ABOUT])) { header('Location: ./?'.URL_ABOUT); exit(); }
 	$template = file_get_contents('./assets/about.html');
-}
+}*/
 
 // default template is 404
 if (empty($template)) {
@@ -463,12 +636,21 @@ if (empty($template)) {
 }
 
 // helper
-$authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
+//$authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 ?><!doctype html>
-<html lang="fr">
+<html lang="no">
 	<head>
+        <script>
+            window.onpageshow = function(event) {
+                if (event.persisted) {
+                    window.location.reload()
+                }
+            };
+        </script>
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
 		<meta charset="UTF-8" />
+		<meta name="google-signin-client_id" content="1024777462209-88ijoclg7aeen1cbgm9gehcq84jsukqj.apps.googleusercontent.com">
 		<title><?php echo TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
 
 		<!-- Parce qu’il y a toujours un peu d’humain derrière un site... -->
@@ -487,39 +669,61 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 	<body>
 
+        <script>
+        function onSignIn(googleUser) {
+          var profile = googleUser.getBasicProfile();
+          console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+          console.log('Name: ' + profile.getName());
+          console.log('Image URL: ' + profile.getImageUrl());
+          console.log('Email: ' + profile.getEmail());
+        }
+        </script>
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 		<div class="container">
-		<div class="navbar-header">
-		<a class="navbar-brand tip" href="./" title="home" data-placement="right"><i class="glyphicon glyphicon-home"></i> <?php echo TITLE; ?></a>
-		</div>
+        <audio id="musikk" controls>
+            <source src="assets/Best - Christmas Songs for 2016.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
 
-		<div class="collapse navbar-collapse" id="navbar-collapse">
-		<ul class="nav navbar-nav navbar-right">
-			<li><a href="./?<?php echo URL_ABOUT; ?>" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
-			<?php
-			// logout
-			if ($authentificated) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
-			// rss
-			if (!defined('PASSKEY')) { echo '<li><a href="', RSS::getLink(), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
-			?>
-		</ul>
-		</div>
+		<?php //fixa inlogg vid öppen översikt
+		if(null !== USERNAME)
+            echo '<span class="pull-right user">Du er logget inn som '.USERNAME.'. <a href="logout.php">Logg ut</a></span>';
+        ?>
 		</div>
 		</nav>
 
+        <script>
+            var myAudio = document.getElementById("musikk");
+            var pause = sessionStorage.getItem("pause");
+            if(pause !== "true"){
+                document.getElementById("musikk").play();
+            }
+        </script>
+        <!--<a href="#" onclick="signOut();"  class="pull-right user">Logg ut</a>
+        <script>
+          function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+              console.log('User signed out.');
+            });
+          }
+        </script>-->
+		<div id="snowflakeContainer">
+
 		<div class="background<?php if(defined('ALTERNATE_BACKGROUND')) { echo ' alternate-background'; } ?>">
 		<?php
-			echo $template;
+			echo $template . '<p class="snowflake">*</p>';
 		?>
 		</div>
 
 		<footer>
-		<hr />
 		<div class="container">
-			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
+			<!--<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>-->
 			<div class="notice">
 				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo VERSION; ?>
 				<br />Developed with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
+				<br />Forked and perfected by <a href="http://solidsquare.no/karl-olofsson/" rel="external">Karl Olofsson</a>.
+                <br />Designed with a smile by <a href="http://solidsquare.no/marthe-sofie-eide/" rel="external">Marthe Sofie Eide</a>.
 			</div>
 		</div>
 		</footer>
@@ -527,7 +731,8 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		<script src="assets/jquery.min.js"></script>
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="assets/adventcalendar.js"></script>
-		<?php if (AddOns::Found('js')): ?>
+        <script src="assets/fallingsnow_v6.js"></script>
+		<!--<?php if (AddOns::Found('js')): ?>
 		<script>
 			<?php if (AddOns::Found('disqus')): ?>
 			var disqus_shortname = '<?php echo AddOns::Get("disqus"); ?>';
@@ -547,6 +752,12 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 			(function(){ var u='//<?php echo $piwik["piwik_url"]; ?>/'; _paq.push(['setSiteId', '<?php echo $piwik["site_id"]; ?>']); _paq.push(['setTrackerUrl', u+'piwik.php']); _paq.push(['trackPageView']); _paq.push(['enableLinkTracking']); var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript'; g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s); })();
 			<?php endif; ?>
 		</script>
-		<?php endif; ?>
+		<?php endif; ?>-->
+        <script>
+            var myAudio = document.getElementById("musikk");
+            myAudio.onpause = function() {
+                sessionStorage.setItem("pause", "true");
+            };
+        </script>
 	</body>
 </html>

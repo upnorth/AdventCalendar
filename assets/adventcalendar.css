@@ -14,9 +14,9 @@ body {
 	margin: 0;
 	padding: 20px 0;
 	overflow: hidden;
-	background: url(tree_bark.png) left top repeat fixed;
+	background: url("snow-christmas-background.jpg") left top repeat fixed;
 }
-.alternate-background { background: url(wave_grid.png) left top repeat fixed; }
+//.alternate-background { background: url(wave_grid.png) left top repeat fixed; }
 hr, .page-header { border-color: #cdcdcd; }
 nav.navbar { margin-bottom: 0; }
 .navbar { font-weight: 400; }
@@ -63,10 +63,9 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 	letter-spacing: -4px;
 	color: #fff;
 }
-.day-row.active.day-color-1 { background: #49C7FF; }
-.day-row.active.day-color-2 { background: #5FC462; }
-.day-row.active.day-color-3 { background: #EDD360; }
-.day-row.active.day-color-4 { background: #C48CE8; }
+.day-row.active { background-image: url("luke/8.png"); background-size: 100px 100px; }
+.day-text {color: white;}
+.viewed {color: red; border: 1px solid white; background-size: 100px 100px; }
 
 .day h1 {
 	margin: 0 auto 6px;
@@ -103,3 +102,41 @@ footer { margin: 0 0 20px 0; }
 footer hr { margin-top: 0px; }
 footer p a { color: #777; }
 footer .notice a { color: #888; }
+
+#snowflakeContainer {
+    position: relative;
+    left: 0px;
+    top: 0px;
+}
+.snowflake {
+    padding-left: 15px;
+    font-family: Cambria, Georgia, serif;
+    font-size: 14px;
+    line-height: 24px;
+    position: fixed;
+    color: #FFFFFF;
+    user-select: none;
+    z-index: 1000;
+}
+.snowflake:hover {
+    cursor: default;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 35px;
+    height: 0;
+    max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top:0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
