@@ -22,14 +22,8 @@ define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
 define('UNLOCKED', 9);
 
 $users = array(
-                'Karl'=>'Olofsson',
-                'Claus'=>'Fasseland',
-                'Marthe'=>'Eide',
-                'Ummear'=>'Khan',
-                'FredrikO'=>'Oterholt',
-                'Fredrik'=>'Larsen',
-                'Kjell Arne'=>'Arvesen',
-                'Daniel'=>'Martinsen',
+                'Username'=>'Password',
+                'Username2' => 'Password2'
                 );
 
 $order = array(
