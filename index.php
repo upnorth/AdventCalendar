@@ -15,16 +15,18 @@ define('URL_PHOTO', 'photo');
 define('URL_ABOUT', 'about');
 define('URL_RSS', 'rss');
 define('PRIVATE_FOLDER', './private');
+define('USERS_FILE', PRIVATE_FOLDER.'/users.json');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
 
 define('UNLOCKED', 9);
 
-$users = array(
-                'Username'=>'Password',
-                'Username2' => 'Password2'
-                );
+// load users from file
+$users = array();
+if (file_exists(USERS_FILE) && $users !== NULL) {
+    $users = json_decode(file_get_contents(USERS_FILE), true);
+}
 
 $order = array(
             '1' =>'3', '2'=>'5',  '3'=>'13', '4'=>'2',  '5'=>'7',  '6'=>'15',
