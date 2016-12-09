@@ -16,6 +16,8 @@ define('URL_ABOUT', 'about');
 define('URL_RSS', 'rss');
 define('PRIVATE_FOLDER', './private');
 define('USERS_FILE', PRIVATE_FOLDER.'/users.json');
+define('HISTORY_FILE', PRIVATE_FOLDER.'/sett.csv');
+define('UPDATE_HISTORY_FILE', PRIVATE_FOLDER.'/sett_update.csv');
 define('ORDER_FILE', PRIVATE_FOLDER.'/order.json');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
@@ -242,10 +244,10 @@ abstract class Advent {
 	static function getDaysHtml($order, $users) {
 	    $data = array();
         if(null !== USERNAME){
-            if(!file_exists('sett.csv') || !is_readable('sett.csv'))
+            if(!file_exists(HISTORY_FILE) || !is_readable(HISTORY_FILE))
                 echo 'CSV Fail';
             $header = NULL;
-            if (($handle = fopen('sett.csv', 'r')) !== FALSE){
+            if (($handle = fopen(HISTORY_FILE, 'r')) !== FALSE){
                 while (($row = fgetcsv($handle, 0, ',')) !== FALSE){
                     if(!$header)
                        $header = $row;
@@ -262,11 +264,11 @@ abstract class Advent {
 			if ($d->active) { $result .= '<a href="'. $d->url .'" title="Day '. $d->day .'"'; }
 			else { $result .= '<div'; }
             if(null !== USERNAME){
-                if(!file_exists('sett.csv') || !is_readable('sett.csv'))
+                if(!file_exists(HISTORY_FILE) || !is_readable(HISTORY_FILE))
                     echo 'CSV Fail';
                 $header = NULL;
                 $data = array();
-                if (($handle = fopen('sett.csv', 'r')) !== FALSE){
+                if (($handle = fopen(HISTORY_FILE, 'r')) !== FALSE){
                     while (($row = fgetcsv($handle, 0, ',')) !== FALSE){
                         if(!$header)
                            $header = $row;
@@ -338,13 +340,11 @@ abstract class Advent {
 		// display image
 		$result .= '<div class="text-center"><img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="Day '. $day .'" />';
 		// do we have a legend?
-		//if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
+		if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
 		$result .= '</div>';
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 
-        // do we have extra content?
-        if (!empty(self::getCode($day))) { $result .= self::getCode($day); }
 		// do we have a text?
 		if (!empty($text)) { $result .= '<div class="text panel panel-default"><div class="panel-body">'.$text.'</div></div>'; }
 		// clearfix
@@ -362,30 +362,6 @@ abstract class Advent {
 		if (AddOns::Found('disqus')) { $result .= '<div id="disqus_thread"></div>'; }
 
 		return $result.'</div>';
-	}
-    // Hard coded opt-in for extra non-text content, working on more dynamic feature
-	static function getCode($day){
-	    $code = '';
-	    switch ($day){
-	        case '1':
-	            $code = '<div class="video-container"><iframe src="https://www.youtube.com/embed/Swos6PO2zNM?autoplay=1" frameborder="0" allowfullscreen></iframe></div><p class="text">Sjekk ut videon <a href="https://www.youtube.com/watch?v=Swos6PO2zNM&feature=youtu.be">her </a>(innlogget med Solidsquare-bruker) hvis den ikke går å spille.</p>';
-	            break;
-            case '2':
-                $code = '<img class="img-responsive" src="https://i.kinja-img.com/gawker-media/image/upload/17iqysqjnsthujpg.jpg">';
-	            break;
-            case '3':
-                $code = '<img class="img-responsive" src="https://s-media-cache-ak0.pinimg.com/564x/10/30/8e/10308e90073dfdf669b847924d34408e.jpg">';
-                break;
-            case '4':
-                $code = '<div class="video-container"><iframe src="https://www.youtube.com/embed/GKRI86ldV_w?autoplay=1" frameborder="0" allowfullscreen></iframe></div><p class="text">Sjekk ut videon <a href="https://www.youtube.com/watch?v=GKRI86ldV_w&feature=youtu.be">her </a>(innlogget med Solidsquare-bruker) hvis den ikke går å spille.</p>';
-	            break;
-            case '5':
-		        $code = '<img class="img-responsive" src="https://s-media-cache-ak0.pinimg.com/originals/00/bb/84/00bb84e7400cee35c416737b968d5c64.png">';
-                break;
-	        default:
-	            break;
-	    }
-	    return $code;
 	}
 
 	function bePatient($day) {
@@ -514,11 +490,11 @@ else if (isset($_GET['day'])) {
             else {
                 $template = Advent::getDayHtml($day);
                 if(USERNAME !== null) {
-                    if(!file_exists('sett.csv') || !is_readable('sett.csv'))
+                    if(!file_exists(HISTORY_FILE) || !is_readable(HISTORY_FILE))
                         echo 'CSV Fail';
                     $header = NULL;
                     $data = array();
-                    if (($handle = fopen('sett.csv', 'r')) !== FALSE){
+                    if (($handle = fopen(HISTORY_FILE, 'r')) !== FALSE){
                         while (($row = fgetcsv($handle, 0, ',')) !== FALSE){
                             if(!$header)
                                $header = $row;
@@ -529,8 +505,8 @@ else if (isset($_GET['day'])) {
                         }
                         fclose($handle);
                     }
-                    $input = fopen('sett.csv', 'r');  //open for reading
-                    $output = fopen('sett_update.csv', 'w'); //open for writing
+                    $input = fopen(HISTORY_FILE, 'r');  //open for reading
+                    $output = fopen(UPDATE_HISTORY_FILE, 'w'); //open for writing
                     while($data = fgetcsv($input)){  //read each line as an array
                        //modify data here
                        if ($data[0] == $users[USERNAME]) {
@@ -545,8 +521,8 @@ else if (isset($_GET['day'])) {
                     fclose( $input );
                     fclose( $output );
                     //clean up
-                    unlink('sett.csv');// Delete obsolete BD
-                    rename('sett_update.csv', 'sett.csv'); //Rename temporary to new
+                    unlink(HISTORY_FILE);// Delete obsolete BD
+                    rename(UPDATE_HISTORY_FILE, HISTORY_FILE); //Rename temporary to new
                 }
             }
         } else { $template = Advent::bePatient($day); }
@@ -651,7 +627,7 @@ if (empty($template)) {
 			<div class="notice">
 				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo VERSION; ?>
 				<br />Developed with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
-				<br />Forked and perfected by <a href="http://solidsquare.no/karl-olofsson/" rel="external">Karl Olofsson</a>.
+				<br />Forked and "perfected" by <a href="http://solidsquare.no/karl-olofsson/" rel="external">Karl Olofsson</a>.
                 <br />Designed with a smile by <a href="http://solidsquare.no/marthe-sofie-eide/" rel="external">Marthe Sofie Eide</a>.
 			</div>
 		</div>
